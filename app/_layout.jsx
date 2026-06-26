@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Slot, useRouter, useSegments } from 'expo-router'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { supabase } from '../lib/supabase'
 
 export default function RootLayout() {
@@ -28,5 +29,9 @@ export default function RootLayout() {
     if (session && inAuth) router.replace('/(tabs)/')
   }, [session, loading])
 
-  return <Slot />
+  return (
+    <SafeAreaProvider>
+      <Slot />
+    </SafeAreaProvider>
+  )
 }
