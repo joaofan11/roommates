@@ -4,7 +4,7 @@ export default function Dashboard() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>roommates</Text>
-      <Text style={styles.sub}>bem-vindos à casa 🏠</Text>
+      
     </View>
   )
 }
