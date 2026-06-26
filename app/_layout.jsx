@@ -1,34 +1,32 @@
-import { Tabs } from 'expo-router'
+import { useEffect, useState } from 'react'
+import { Slot, useRouter, useSegments } from 'expo-router'
+import { supabase } from '../lib/supabase'
 
-export default function TabsLayout() {
-  return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#534AB7',
-        tabBarInactiveTintColor: '#888',
-        tabBarStyle: {
-          borderTopWidth: 0.5,
-          borderTopColor: '#eee',
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{ title: 'início' }}
-      />
-      <Tabs.Screen
-        name="tasks"
-        options={{ title: 'tarefas' }}
-      />
-      <Tabs.Screen
-        name="expenses"
-        options={{ title: 'contas' }}
-      />
-      <Tabs.Screen
-        name="shopping"
-        options={{ title: 'mercado' }}
-      />
-    </Tabs>
-  )
+export default function RootLayout() {
+  const [session, setSession] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  const segments = useSegments()
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      setLoading(false)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  useEffect(() => {
+    if (loading) return
+    const inAuth = segments[0] === '(auth)'
+    if (!session && !inAuth) router.replace('/(auth)/login')
+    if (session && inAuth) router.replace('/(tabs)/')
+  }, [session, loading])
+
+  return <Slot />
 }
